@@ -10,7 +10,8 @@
         <button id="color-btn" onclick="changeColor()">Change Color</button>
         <label for="interval-slider">Interval:</label>
         <input type="range" id="interval-slider" min="10" max="100" step="10" value="50" oninput="updateInterval(this.value)">
-        
+        <label for="y-axis-slider">Y-Axis:</label>
+        <input type="range" id="y-axis-slider" min="-1" max="1" step="0.1" value="0" oninput="updateYAxis(this.value)">
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
@@ -21,10 +22,11 @@
         var intervalId;
         var intervalTime = 50;
         var plotColor = 'blue';
+        var yRange = [-1, 1];
 
         function plot() {
             Plotly.newPlot(plotDiv, [{x: x, y: y, line: {color: plotColor}}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
-                                                      xaxis: {range: [Math.max(cnt - 100, 0), cnt]}});
+                                                      xaxis: {range: [Math.max(cnt - 100, 0), cnt]}, yaxis: {range: yRange, dragmode: 'pan'}});
         }
 
         function update() {
@@ -33,23 +35,29 @@
             y.push();
             cnt++;
             plot();
+
         }
 
         function togglePlot() {
             var btn = document.getElementById('toggle-btn');
+            
+            
+
             if (intervalId) {
                 // Stop plot updates
                 clearInterval(intervalId);
                 intervalId = null;
                 btn.innerHTML = 'Start';
-                // Reset slider
+                // Reset Speed slider
                 var slider = document.getElementById('interval-slider');
                 slider.value = 50;
                 intervalTime = 50;
+
             } else {
                 // Start plot updates
                 intervalId = setInterval(update, intervalTime);
                 btn.innerHTML = 'Stop';
+                
             }
         }
 
@@ -59,6 +67,11 @@
                 clearInterval(intervalId);
                 intervalId = setInterval(update, intervalTime);
             }
+        }
+
+        function updateYAxis(value) {
+            yRange = [value - 1, value + 1];
+            plot();
         }
 
         function changeColor() {
