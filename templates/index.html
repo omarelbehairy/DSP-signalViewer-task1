@@ -8,6 +8,7 @@
     <div>
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
         <button id="color-btn" onclick="changeColor()">Change Color</button>
+        <button id="zoom-in-btn" onclick="zoomIn()">Zoom In</button>
         <label for="interval-slider">Interval:</label>
         <input type="range" id="interval-slider" min="10" max="100" step="10" value="50" oninput="updateInterval(this.value)">
         <label for="y-axis-slider">Y-Axis:</label>
@@ -15,79 +16,81 @@
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
-        var data = {{data|tojson}};
-        var x = [];
-        var y = data.map(function (x) {return x[1]; });
-        var cnt = 0;
-        var intervalId;
-        var intervalTime = 50;
-        var plotColor = 'blue';
-        var yRange = [-1, 1];
+var data = {{data|tojson}};
+var x = [];
+var y = data.map(function (x) {return x[1]; });
+var cnt = 0;
+var intervalId;
+var intervalTime = 50;
+var plotColor = 'blue';
+var yRange = [-1, 1];
+var zoomFactor = 2; // zoom factor for zoom in
 
-        function plot() {
-            Plotly.newPlot(plotDiv, [{x: x, y: y, line: {color: plotColor}}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
-                                                      xaxis: {range: [Math.max(cnt - 100, 0), cnt]}, yaxis: {range: yRange, dragmode: 'pan'}});
+function plot() {
+    Plotly.newPlot(plotDiv, [{x: x, y: y, line: {color: plotColor}}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
+                                              xaxis: {range: [Math.max(cnt - 100, 0), cnt]}, yaxis: {range: yRange, dragmode: 'pan'}});
+}
+
+function update() {
+    // replace with code to get ECG 
+    x.push(cnt);
+    y.push();
+    cnt++;
+    plot();
+
+}
+
+function togglePlot() {
+    var btn = document.getElementById('toggle-btn');
+    
+    if (intervalId) {
+        // Stop plot updates
+        clearInterval(intervalId);
+        intervalId = null;
+        btn.innerHTML = 'Start';
+        // Reset Speed slider
+        var slider = document.getElementById('interval-slider');
+        slider.value = 50;
+        intervalTime = 50;
+
+    } else {
+        // Start plot updates
+        intervalId = setInterval(update, intervalTime);
+        btn.innerHTML = 'Stop';
+        
+    }
+}
+
+function updateInterval(value) {
+    intervalTime = value;
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = setInterval(update, intervalTime);
+    }
+}
+
+function updateYAxis(value) {
+    yRange = [value - 1, value + 1];
+    plot();
+}
+
+
+
+function zoomIn() {
+    var update = {
+        xaxis: {
+            range: [
+                Math.max(cnt - 100, 0),
+                Math.max(cnt - 100, 0) + (cnt - Math.max(cnt - 100, 0)) / zoomFactor
+            ]
         }
+    };
+    Plotly.update(plotDiv, {}, update);
+}
 
-        function update() {
-            // replace with code to get ECG 
-            x.push(cnt);
-            y.push();
-            cnt++;
-            plot();
+// Start plot updates by default
+togglePlot();
 
-        }
-
-        function togglePlot() {
-            var btn = document.getElementById('toggle-btn');
-            
-            
-
-            if (intervalId) {
-                // Stop plot updates
-                clearInterval(intervalId);
-                intervalId = null;
-                btn.innerHTML = 'Start';
-                // Reset Speed slider
-                var slider = document.getElementById('interval-slider');
-                slider.value = 50;
-                intervalTime = 50;
-
-            } else {
-                // Start plot updates
-                intervalId = setInterval(update, intervalTime);
-                btn.innerHTML = 'Stop';
-                
-            }
-        }
-
-        function updateInterval(value) {
-            intervalTime = value;
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = setInterval(update, intervalTime);
-            }
-        }
-
-        function updateYAxis(value) {
-            yRange = [value - 1, value + 1];
-            plot();
-        }
-
-        function changeColor() {
-            var btn = document.getElementById('color-btn');
-            if (plotColor == 'blue') {
-                plotColor = 'red';
-                btn.innerHTML = 'Change to Blue';
-            } else {
-                plotColor = 'blue';
-                btn.innerHTML = 'Change to Red';
-            }
-            plot();
-        }
-
-        // Start plot updates by default
-        togglePlot();
     </script>
 </body>
 </html>
