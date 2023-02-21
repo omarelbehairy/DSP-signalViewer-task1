@@ -6,6 +6,7 @@
 <body>
     <div id="plot"></div>
     <button id="toggle-btn" onclick="togglePlot()">Start</button>
+    <button id="color-btn" onclick="changeColor()">Change Color</button>
     <script>
         var plotDiv = document.getElementById('plot');
         var data = {{data|tojson}};
@@ -13,9 +14,11 @@
         var y = data.map(function (x) {return x[1]; });
         var cnt = 0;
         var intervalId;
+        var colorIndex = 0;
+        var colors = ['blue', 'red', 'green', 'orange', 'purple'];
 
         function plot() {
-            Plotly.newPlot(plotDiv, [{x: x, y: y}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
+            Plotly.newPlot(plotDiv, [{x: x, y: y, line: {color: colors[colorIndex]}}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
                                                       xaxis: {range: [Math.max(cnt - 100, 0), cnt]}});
         }
 
@@ -39,6 +42,11 @@
                 intervalId = setInterval(update, 100);
                 btn.innerHTML = 'Stop';
             }
+        }
+        
+        function changeColor() {
+            colorIndex = (colorIndex + 1) % colors.length;
+            plot();
         }
 
         // Start plot updates by default
