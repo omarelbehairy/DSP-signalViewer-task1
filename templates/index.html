@@ -5,12 +5,14 @@
 </head>
 <body>
     <div id="plot"></div>
+    <button id="toggle-btn" onclick="togglePlot()">Start</button>
     <script>
         var plotDiv = document.getElementById('plot');
         var data = {{data|tojson}};
         var x = [];
         var y = data.map(function (x) {return x[1]; });
         var cnt = 0;
+        var intervalId;
 
         function plot() {
             Plotly.newPlot(plotDiv, [{x: x, y: y}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
@@ -25,9 +27,22 @@
             plot();
         }
 
-        
+        function togglePlot() {
+            var btn = document.getElementById('toggle-btn');
+            if (intervalId) {
+                // Stop plot updates
+                clearInterval(intervalId);
+                intervalId = null;
+                btn.innerHTML = 'Start';
+            } else {
+                // Start plot updates
+                intervalId = setInterval(update, 100);
+                btn.innerHTML = 'Stop';
+            }
+        }
 
-        setInterval(update, 10);
+        // Start plot updates by default
+        togglePlot();
     </script>
 </body>
 </html>
