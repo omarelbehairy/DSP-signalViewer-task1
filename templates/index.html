@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="plot"></div>
+    <script>
+        var plotDiv = document.getElementById('plot');
+        var data = {{data|tojson}};
+        var x = [];
+        var y = data.map(function (x) {return x[1]; });
+        var cnt = 0;
+
+        function plot() {
+            Plotly.newPlot(plotDiv, [{x: x, y: y}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
+                                                      xaxis: {range: [Math.max(cnt - 100, 0), cnt]}});
+        }
+
+        function update() {
+            // replace with code to get ECG 
+            x.push(cnt);
+            y.push();
+            cnt++;
+            plot();
+        }
+
+        
+
+        setInterval(update, 10);
+    </script>
+</body>
+</html>
