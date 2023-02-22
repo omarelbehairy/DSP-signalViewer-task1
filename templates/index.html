@@ -9,7 +9,7 @@
         <input type="file" id="fileInput" onchange="OpenFile(event)">
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
         <button onclick="changeColor()">Change Color</button>
-        <button id="zoom-in-btn" onclick="zoomIn()">Zoom In</button>
+        <button id="zoom-in-btn" onclick="zoomIn()">Zoom</button>
         <label for="interval-slider">Interval:</label>
         <input type="range" id="interval-slider" min="10" max="100" step="10" value="50" oninput="updateInterval(this.value)">
         <label for="y-axis-slider">Y-Axis:</label>
@@ -97,17 +97,23 @@
             plotColor = randomColor; // Save the new color for future updates
         }
 
-    function zoomIn() {
-        var update = {
-        xaxis: {
-            range: [
-                Math.max(cnt - 100, 0),
-                Math.max(cnt - 100, 0) + (cnt - Math.max(cnt - 100, 0)) / zoomFactor
-                ]
-            }
-        };
-            Plotly.update(plotDiv, {}, update);
-        }
+        function zoomIn() {
+  // Determine the current zoom level
+  var currentZoom = (plotDiv.layout.xaxis.range[1] - plotDiv.layout.xaxis.range[0]) / 100;
+
+  // Determine the new zoom range
+  var newStart = Math.max(cnt - 100, 0);
+  var newEnd = Math.max(cnt - 100, 0) + (cnt - Math.max(cnt - 100, 0)) / (zoomFactor * currentZoom);
+
+  // Adjust the zoom range
+  var update = {
+    xaxis: {
+      range: [newStart, newEnd]
+    }
+  };
+  Plotly.update(plotDiv, {}, update);
+}
+
 
     function updateYAxis(value) {
         yRange = [value - 1, value + 1];
