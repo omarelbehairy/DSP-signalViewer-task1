@@ -6,90 +6,76 @@
 <body>
     <div id="plot"></div>
     <div>
+        <input type="file" id="fileInput" onchange="OpenFile(event)">
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
-        <button id="color-btn" onclick="changeColor()">Change Color</button>
-        <button id="zoom-in-btn" onclick="zoomIn()">Zoom In</button>
-        <label for="interval-slider">Interval:</label>
-        <input type="range" id="interval-slider" min="10" max="100" step="10" value="50" oninput="updateInterval(this.value)">
-        <label for="y-axis-slider">Y-Axis:</label>
-        <input type="range" id="y-axis-slider" min="-1" max="1" step="0.1" value="0" oninput="updateYAxis(this.value)">
+        <button onclick="changeColor()">Change Color</button>
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
-var data = {{data|tojson}};
-var x = [];
-var y = data.map(function (x) {return x[1]; });
-var cnt = 0;
-var intervalId;
-var intervalTime = 50;
-var plotColor = 'blue';
-var yRange = [-1, 1];
-var zoomFactor = 2; // zoom factor for zoom in
+        var x = [];
+        var y = [];
+        var cnt = 0;
+        var intervalID;
+        var plotColor = '#1f77b4'; // Default color
 
-function plot() {
-    Plotly.newPlot(plotDiv, [{x: x, y: y, line: {color: plotColor}}], {title: 'ECG Signal', scrollZoom: true, modeBar: {orientation: 'v'},
-                                              xaxis: {range: [Math.max(cnt - 100, 0), cnt]}, yaxis: {range: yRange, dragmode: 'pan'}});
-}
-
-function update() {
-    // replace with code to get ECG 
-    x.push(cnt);
-    y.push();
-    cnt++;
-    plot();
-
-}
-
-function togglePlot() {
-    var btn = document.getElementById('toggle-btn');
-    
-    if (intervalId) {
-        // Stop plot updates
-        clearInterval(intervalId);
-        intervalId = null;
-        btn.innerHTML = 'Start';
-        // Reset Speed slider
-        var slider = document.getElementById('interval-slider');
-        slider.value = 50;
-        intervalTime = 50;
-
-    } else {
-        // Start plot updates
-        intervalId = setInterval(update, intervalTime);
-        btn.innerHTML = 'Stop';
-        
-    }
-}
-
-function updateInterval(value) {
-    intervalTime = value;
-    if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = setInterval(update, intervalTime);
-    }
-}
-
-function updateYAxis(value) {
-    yRange = [value - 1, value + 1];
-    plot();
-}
-
-
-
-function zoomIn() {
-    var update = {
-        xaxis: {
-            range: [
-                Math.max(cnt - 100, 0),
-                Math.max(cnt - 100, 0) + (cnt - Math.max(cnt - 100, 0)) / zoomFactor
-            ]
+        function OpenFile(event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function(){
+                var lines = reader.result.split('\n');
+                for(var i = 0; i < lines.length; i++){
+                    var cols = lines[i].split('\t');
+                    y.push(parseFloat(cols[1]));
+                }
+                plot();
+            };
+            reader.readAsText(input.files[0]);
         }
-    };
-    Plotly.update(plotDiv, {}, update);
-}
 
-// Start plot updates by default
-togglePlot();
+        function plot() {
+            Plotly.newPlot(plotDiv, [{x: x, y: y}], {
+            title: 'ECG Signal',
+            scrollZoom: true,
+            modeBar: {orientation: 'v'},
+            xaxis: {range: [Math.max(cnt - 100, 0), cnt]}
+        });
+    }
+
+    function update() {
+        x.push(cnt);
+        y.push(); // add code to get ECG here
+        cnt++;
+
+        // update xaxis range
+        var update = {
+            xaxis: {
+                range: [Math.max(cnt - 100, 0), cnt]
+            }
+        };
+
+        Plotly.update(plotDiv, {x: [x], y: [y]}, update);
+    }
+
+    function togglePlot() {
+        var button = document.getElementById("toggle-btn");
+        if (button.innerHTML === "Stop") {
+            clearInterval(intervalID);
+            button.innerHTML = "Play";
+        } else {
+            intervalID = setInterval(update, 50);
+            button.innerHTML = "Stop";
+        }
+    }
+
+    function changeColor() {
+            // Generate a random color
+            var randomColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+
+            // Update the plot color
+            Plotly.restyle(plotDiv, {line: {color: randomColor}}, 0);
+            plotColor = randomColor; // Save the new color for future updates
+        }
+
 
     </script>
 </body>
