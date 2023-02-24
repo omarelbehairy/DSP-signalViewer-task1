@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="plot"></div>
+    <div>
+        <input type="file" id="fileInput" onchange="OpenFile(event)">
+        <button id="toggle-btn" onclick="togglePlot()">Start</button>
+        <label for="slider">Zoom in/out:</label>
+        <input id="slider" type="range" min="10" max="90" value="100" onchange="sliderChange(this.value)">
+        
+    </div>
+    <script>
+        var plotDiv = document.getElementById('plot');
+        var x = [];
+        var y = [];
+        var cnt = 0;
+        var intervalID;
+        var yRange = [-1, 1];
+        var windowSize = 100;
+        var windowStart = 0;
+        var windowEnd = windowStart + windowSize;
+
+        function OpenFile(event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function(){
+                var lines = reader.result.split('\n');
+                for(var i = 0; i < lines.length; i++){
+                    var cols = lines[i].split('\t');
+                    y.push(parseFloat(cols[1]));
+                }
+                plot();
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        function plot() {
+            Plotly.newPlot(plotDiv, [{x: x, y: y}], {
+                title: 'ECG Signal',
+                scrollZoom: true,
+                modeBar: {orientation: 'v'},
+                xaxis: {range: [0, windowSize], fixedrange: true},
+                yaxis: {range: yRange}
+            });
+        }
+
+        function update() {
+            x.push(cnt);
+            y.push(); // add code to get ECG here
+            cnt++;
+
+            // update xaxis range
+            windowStart = Math.max(cnt - windowSize, 0);
+            windowEnd = windowStart + windowSize;
+            var update = {
+                xaxis: {
+                    range: [windowStart, windowEnd]
+                }
+            };
+
+            Plotly.update(plotDiv, {x: [x.slice(windowStart, windowEnd)], y: [y.slice(windowStart, windowEnd)]}, update);
+        }
+
+        function togglePlot() {
+            var button = document.getElementById("toggle-btn");
+            if (button.innerHTML === "Stop") {
+                clearInterval(intervalID);
+                button.innerHTML = "Play";
+            } else {
+                intervalID = setInterval(update, 50);
+                button.innerHTML = "Stop";
+            }
+        }
+
+        function sliderChange(value) {
+            windowSize = Math.round(value * x.length / 100);
+            windowStart = Math.max(cnt - windowSize, 0);
+            windowEnd = windowStart + windowSize;
+            var update = {
+                xaxis: {
+                    range: [windowStart, windowEnd]
+                }
+            };
+            Plotly.update(plotDiv, {x: [x.slice(windowStart, windowEnd)], y: [y.slice(windowStart, windowEnd)]}, update);
+        }
+
+    </script>
+</body>
+</html>
