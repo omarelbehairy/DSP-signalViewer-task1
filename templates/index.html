@@ -120,6 +120,11 @@
             Plotly.update(plotDiv, {yaxis: {range: yRange}});
         }
 
+        function updateXRange() {
+            xRange[1] = parseInt(document.getElementById("xRangeInput").value);
+            Plotly.update(plotDiv, {xaxis: {range: [Math.max(cnt - xRange[1], xRange[0]), cnt]}});
+        }
+
     </script>
 </body>
 </html>

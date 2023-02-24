@@ -13,7 +13,7 @@
         <input type="range" id="yRangeInput" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRange()">
     </div>
     <div>
-        <input type="range" id="xRangeInput" min="10" max="90" step="1" value="50" onchange="updateXRange()">
+        <input type="range" id="xRangeInput" min="0" max="100" step="1" value="100" onchange="updateXRange()">
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
@@ -21,8 +21,8 @@
         var y = [];
         var cnt = 0;
         var intervalID;
+        var xRange = [0, 100];
         var yRange = [-1, 1.8];
-        var xRange = [0, 1000];
 
         function OpenFile(event) {
             var input = event.target;
@@ -43,7 +43,7 @@
                 title: 'ECG Signal',
                 scrollZoom: true,
                 modeBar: {orientation: 'v'},
-                xaxis: {range: xRange},
+                xaxis: {range: [Math.max(cnt - 100, 0), cnt]},
                 yaxis: {range: yRange}
             });
         }
@@ -69,7 +69,7 @@
         }
 
         function updateXRange() {
-            xRange[1] = parseFloat(document.getElementById("xRangeInput").value);
+            xRange[1] = parseInt(document.getElementById("xRangeInput").value);
             Plotly.update(plotDiv, {xaxis: {range: [Math.max(cnt - xRange[1], xRange[0]), cnt]}});
         }
 
