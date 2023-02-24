@@ -9,13 +9,16 @@
         <input type="file" id="fileInput" onchange="OpenFile(event)">
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
     </div>
+    <div>
+        <input type="range" id="yRangeInput" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRange()">
+    </div>
     <script>
         var plotDiv = document.getElementById('plot');
         var x = [];
         var y = [];
         var cnt = 0;
         var intervalID;
-        var yRange = [-1, 2];
+        var yRange = [-1, 1.8];
 
         function OpenFile(event) {
             var input = event.target;
@@ -33,40 +36,44 @@
 
         function plot() {
             Plotly.newPlot(plotDiv, [{x: x, y: y}], {
-            title: 'ECG Signal',
-            scrollZoom: true,
-            modeBar: {orientation: 'v'},
-            xaxis: {range: [Math.max(cnt - 100, 0), cnt]},
-            yaxis: {range: yRange}
-        });
-    }
-
-    function update() {
-        x.push(cnt);
-        y.push(); // add code to get ECG here
-        cnt++;
-
-        // update xaxis range
-        var update = {
-            xaxis: {
-                range: [Math.max(cnt - 100, 0), cnt]
-            }
-        };
-
-        Plotly.update(plotDiv, {x: [x], y: [y]}, update);
-    }
-
-    function togglePlot() {
-        var button = document.getElementById("toggle-btn");
-        if (button.innerHTML === "Stop") {
-            clearInterval(intervalID);
-            button.innerHTML = "Play";
-        } else {
-            intervalID = setInterval(update, 50);
-            button.innerHTML = "Stop";
+                title: 'ECG Signal',
+                scrollZoom: true,
+                modeBar: {orientation: 'v'},
+                xaxis: {range: [Math.max(cnt - 100, 0), cnt]},
+                yaxis: {range: yRange}
+            });
         }
-    }
 
+        function update() {
+            x.push(cnt);
+            y.push(); // add code to get ECG here
+            cnt++;
+
+            // update xaxis range
+            var update = {
+                xaxis: {
+                    range: [Math.max(cnt - 100, 0), cnt]
+                }
+            };
+
+            Plotly.update(plotDiv, {x: [x], y: [y]}, update);
+        }
+
+        function updateYRange() {
+            yRange[0] = parseFloat(document.getElementById("yRangeInput").value);
+            Plotly.update(plotDiv, {yaxis: {range: yRange}});
+        }
+
+        function togglePlot() {
+            var button = document.getElementById("toggle-btn");
+            if (button.innerHTML === "Stop") {
+                clearInterval(intervalID);
+                button.innerHTML = "Play";
+            } else {
+                intervalID = setInterval(update, 50);
+                button.innerHTML = "Stop";
+            }
+        }
     </script>
 </body>
 </html>
