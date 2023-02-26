@@ -2,13 +2,18 @@
 <html>
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/descriptive-statistics/dist/descriptive-statistics.min.js"></script>
+
+
 </head>
 <body>
     <div id="plot"></div>
     <div>
         <input type="file" id="fileInput" onchange="OpenFile(event)">
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
-        <button id="restart-btn" onclick="restartPlot()">Restart</button>
+        <button onclick="saveAsPDF()">PDF</button>
+
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
@@ -72,19 +77,44 @@
             button.innerHTML = "Stop";
         }
     }
+    function saveAsPDF() {
+    var element = document.getElementById('plot');
+    var opt = {
+        margin: 1,
+        filename: 'ECG_Signal.pdf',
+        image: { type: 'pdf', quality: 0.95 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
     
-    function restartPlot() {
-        clearInterval(intervalID);
-        x = [];
-        y = [];
-        cnt = 0;
-        windowStart = 0;
-        windowEnd = windowStart + windowSize;
-        Plotly.purge(plotDiv);
-        OpenFile({target: {files: [document.getElementById("fileInput").files[0]]}});
-        var button = document.getElementById("toggle-btn");
-        button.innerHTML = "Start";
+    var stats = calculateStatistics(y); 
+    var html = '<h2>ECG Signal</h2>' + element.innerHTML; // Add title to the plot in the PDF
+    html += '<h3>Statistics</h3><ul><li>Minimum: ' + stats.min + '</li><li>Maximum: ' + stats.max + '</li><li>Mean: ' + stats.mean + '</li><li>Standard Deviation: ' + stats.stdDev + '</li></ul>'; // Add statistics to the PDF
+    html2pdf().set(opt).from(html).save();
+}
+
+function calculateStatistics(data) {
+  var n = data.length;
+  var sum = 0;
+  var sumSquared = 0;
+  var min = Number.MAX_VALUE;
+  var max = Number.MIN_VALUE;
+  for (var i = 0; i < n; i++) {
+    var x = data[i];
+    sum += x;
+    sumSquared += x*x;
+    if (x < min) {
+      min = x;
     }
+    if (x > max) {
+      max = x;
+    }
+  }
+  var mean = sum / n;
+  var variance = sumSquared / n - mean*mean;
+  var stdDev = Math.sqrt(variance);
+  return {min: min, max: max, mean: mean, stdDev: stdDev};
+}
     </script>
 </body>
 </html>
