@@ -8,6 +8,7 @@
     <div>
         <input type="file" id="fileInput" onchange="OpenFile(event)">
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
+        <button id="restart-btn" onclick="rewindPlot()">Rewind</button>
         <button onclick="changeColor()">Change Color</button>
         <label for="slider">Zoom in/out:</label>
         <input id="slider" type="range" min="10" max="90" value="100" onchange="ZoomSliderChange(this.value)">
@@ -133,6 +134,19 @@
             };
             Plotly.update(plotDiv, {x: [x], y: [y]}, update);
         }
+
+        function rewindPlot() {
+        clearInterval(intervalID);
+        x = [];
+        y = [];
+        cnt = 0;
+        windowStart = 0;
+        windowEnd = windowStart + windowSize;
+        Plotly.purge(plotDiv);
+        OpenFile({target: {files: [document.getElementById("fileInput").files[0]]}});
+        var button = document.getElementById("toggle-btn");
+        button.innerHTML = "Start";
+    }
 
     </script>
 </body>
