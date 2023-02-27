@@ -12,16 +12,19 @@
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
         <input type="text" id="labelInput" onchange="updateLabel()">
         <button id="restart-btn" onclick="rewindPlot()">Rewind</button>
-        <button onclick="changeColor()">Change Color</button>
+        <button onclick="changeColor()">Color</button>
         <button onclick="saveAsPDF()">PDF</button>
         <label for="slider">Zoom in/out:</label>
         <input id="slider" type="range" min="10" max="90" value="100" onchange="ZoomSliderChange(this.value)">
         <label for="interval-slider">Interval:</label>
         <input type="range" id="interval-slider" min="10" max="100" step="10" value="50" oninput="updateInterval(this.value)">
         <label for="xRangeInput">X - axis</label>
-        <input type="range" id="xRangeInput" min="10" max="500" step="1" value="50" onchange="updateXRange()">
+        <input type="range" id="xRangeInput" min="10" max="500" step="1" value="10" onchange="updateXRange()">
         <label for="yRangeInput">Y - axis</label>
         <input type="range" id="yRangeInput" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRange()">
+        <label for="myCheckbox">Link:</label>
+        <input type="checkbox" id="myCheckbox" name="myCheckbox" value="1" onchange="Link()">
+        
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
@@ -32,11 +35,18 @@
         var intervalID;
         var plotColor = '#1f77b4'; // Default color
         var yRange = [-1, 1.8];
-        var xRange = [0,1000];
+        var xRange = [0,100];
         var intervalTime = 50;
         var windowSize = 100;
         var windowStart = 0;
         var windowEnd = windowStart + windowSize;
+
+        function Link() {
+  var checkbox = document.getElementById("myCheckbox");
+  if (checkbox.checked) {
+    console.log("Hello, world!");
+  }
+}
 
         function updateInterval(value) {
             intervalTime = value;
@@ -62,7 +72,7 @@
 
         function plot() {
     var layout = {
-        title: 'Real-Time Signal',
+        title: 'First Graph Real-Time Plotting',
         scrollZoom: true,
         modeBar: {orientation: 'v'},
         xaxis: {range: [0, windowSize], fixedrange: true},
@@ -113,7 +123,7 @@
                 text: label,
                 xref: 'paper',
                 yref: 'paper',
-                x: 0.1,
+                x: 1.0,
                 y: 1.0,
                 showarrow: false,
                 font: {
@@ -180,7 +190,7 @@
     var element = document.getElementById('plot');
     var opt = {
         margin: 1,
-        filename: 'Plotted_Signal.pdf',
+        filename: 'First Graph Real-Time Plotting.pdf',
         image: { type: 'pdf', quality: 0.95 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -215,6 +225,220 @@ function calculateStatistics(data) {
     return {min: min, max: max, mean: mean, stdDev: stdDev};
     }
 
+    </script>
+</body>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src='https://unpkg.com/simple-statistics@7.8.2/dist/simple-statistics.min.js'></script>
+</head>
+<body>
+    <div id="plot2"></div>
+    <div>
+        <input type="file" id="fileInput2" onchange="OpenFile2(event)">
+        <button id="toggle-btn2" onclick="togglePlot2()">Start</button>
+        <input type="text" id="labelInput2" onchange="updateLabel2()">
+        <button id="restart-btn2" onclick="rewindPlot2()">Rewind</button>
+        <button onclick="changeColor2()">Color</button>
+        <button onclick="saveAsPDF2()">PDF</button>
+        <label for="slider2">Zoom in/out:</label>
+        <input id="slider2" type="range" min="10" max="90" value="100" onchange="ZoomSliderChange2(this.value)">
+        <label for="interval-slider2">Interval:</label>
+        <input type="range" id="interval-slider2" min="10" max="100" step="10" value="50" oninput="updateInterval2(this.value)">
+        <label for="xRangeInput2">X - axis</label>
+        <input type="range" id="xRangeInput2" min="10" max="500" step="1" value="10" onchange="updateXRange2()">
+        <label for="yRangeInput2">Y - axis</label>
+        <input type="range" id="yRangeInput2" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRange2()">
+    </div>
+    <script>
+        var plotDiv2 = document.getElementById('plot2');
+        var x2 = [];
+        var y2 = [];
+        var cnt2 = 0;
+        var intervalID2;
+        var yRange2 = [-1, 1.8];
+        var windowSize2 = 100;
+        var windowStart2 = 0;
+        var windowEnd2 = windowStart2 + windowSize2;
+        var plotColor2 = '#1f77b4'; // Default color
+        var xRange2 = [0,100];
+        var intervalTime2 = 50;
+
+        function OpenFile2(event) {
+            var input2 = event.target;
+            var reader2 = new FileReader();
+            reader2.onload = function(){
+                var lines2 = reader2.result.split('\n');
+                for(var i = 0; i < lines2.length; i++){
+                    var cols2 = lines2[i].split('\t');
+                    y2.push(parseFloat(cols2[1]));
+                }
+                plot2();
+            };
+            reader2.readAsText(input2.files[0]);
+        }
+
+        function plot2() {
+    var layout2 = {
+        title: 'Second Graph Real-Time Plotting',
+        scrollZoom: true,
+        modeBar: {orientation: 'v'},
+        xaxis: {range: [0, windowSize2], fixedrange: true},
+        yaxis: {range: yRange2},
+    };
+
+    Plotly.newPlot(plotDiv2, [{x: x2, y: y2}], layout2);
+}
+
+    function update2() {
+        x2.push(cnt2);
+        y2.push(); // add code to get ECG here
+        cnt2++;
+
+        // update xaxis range
+        windowStart2 = Math.max(cnt2 - windowSize2, 0);
+        windowEnd2 = windowStart2 + windowSize2;
+        var update22 = {
+            xaxis: {
+                range: [windowStart2, windowEnd2]
+            }
+        };
+
+        Plotly.update(plotDiv2, {x: [x2.slice(windowStart2, windowEnd2)], y: [y2.slice(windowStart2, windowEnd2)]}, update22);
+    }
+
+    function togglePlot2() {
+        updateLabel2();
+        var button2 = document.getElementById("toggle-btn2");
+        if (button2.innerHTML === "Stop") {
+            clearInterval(intervalID2);
+            button2.innerHTML = "Play";
+            // Reset slider
+            var slider2 = document.getElementById('interval-slider2');
+                slider2.value = 100;
+                intervalTime2 = 100;
+        } else {
+            intervalID2 = setInterval(update2, 50);
+            button2.innerHTML = "Stop";
+        }
+    }
+
+    function updateInterval2(value) {
+            intervalTime2 = value;
+            if (intervalID2) {
+                clearInterval(intervalID2);
+                intervalID2 = setInterval(update2, intervalTime2);
+            }
+        }
+
+    function rewindPlot2() {
+        clearInterval(intervalID2);
+        x2 = [];
+        y2 = [];
+        cnt2 = 0;
+        windowStart2 = 0;
+        windowEnd2 = windowStart2 + windowSize2;
+        Plotly.purge(plotDiv2);
+        OpenFile2({target: {files: [document.getElementById("fileInput2").files[0]]}});
+        var button2 = document.getElementById("toggle-btn2");
+        button2.innerHTML = "Start";
+    }
+    function updateLabel2() {
+    var label2 = document.getElementById('labelInput2').value;
+    var update2 = {
+        annotations: [
+            {
+                text: label2,
+                xref: 'paper',
+                yref: 'paper',
+                x: 0.1,
+                y: 1.0,
+                showarrow: false,
+                font: {
+                    size: 16
+                }
+            }
+        ]
+    };
+    Plotly.update(plotDiv2, {}, update2);
+}
+
+    function changeColor2() {
+            // Generate a random color
+            var randomColor2 = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+
+            // Update the plot color
+            Plotly.restyle(plotDiv2, {line: {color: randomColor2}}, 0);
+            plotColor2 = randomColor2; // Save the new color for future updates
+        }
+
+        function ZoomSliderChange2(value) {
+            windowSize2 = Math.round(value * x2.length / 100);
+            windowStart2 = Math.max(cnt2 - windowSize2, 0);
+            windowEnd2 = windowStart2 + windowSize2;
+            var update2 = {
+                xaxis: {
+                    range: [windowStart2, windowEnd2]
+                }
+            };
+            Plotly.update(plotDiv2, {x: [x2.slice(windowStart2, windowEnd2)], y: [y2.slice(windowStart2, windowEnd2)]}, update2);
+        }
+
+
+        function updateYRange2() {
+            yRange2[0] = parseFloat(document.getElementById("yRangeInput2").value);
+            Plotly.update(plotDiv2, {yaxis: {range: yRange2}});
+        }
+
+        function updateXRange2() {
+            xRange2[1] = parseInt(document.getElementById("xRangeInput2").value);
+            Plotly.update(plotDiv2, {xaxis: {range: [Math.max(cnt2 - xRange2[1], xRange2[0]), cnt2]}});
+            var update2 = {
+                xaxis: {
+                    range: [Math.max(cnt - xRange2[1], xRange2[0]), cnt2]
+                }
+            };
+            Plotly.update(plotDiv2, {x: [x2], y: [y2]}, update2);
+        }
+
+    function saveAsPDF2() {
+    var element2 = document.getElementById('plot2');
+    var opt2 = {
+        margin: 1,
+        filename: 'Second Graph Real-Time Plotting.pdf',
+        image: { type: 'pdf', quality: 0.95 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    
+    var stats2 = calculateStatistics2(y2); 
+    var html2 = '<h2>Plotted Signal</h2>' + element2.innerHTML; // Add title to the plot in the PDF
+    html2 += '<h3>Statistics</h3><ul><li>Minimum: ' + stats2.min2 + '</li><li>Maximum: ' + stats2.max2 + '</li><li>Mean: ' + stats2.mean2 + '</li><li>Standard Deviation: ' + stats2.stdDev2 + '</li></ul>'; // Add statistics to the PDF
+    html2pdf().set(opt2).from(html2).save();
+}
+
+function calculateStatistics2(data2) {
+    var n2 = (data2.length/100);
+    var sum2 = 0;
+    var sumSquared2 = 0;
+    var min2 = Number.MAX_VALUE;
+    var max2 = Number.MIN_VALUE;
+    for (var i2 = 0; i2 <= n2; i2++) {
+        var x2 = data2[i2];
+        sum2 = sum2 + x2;
+        sumSquared2 += x2*x2;
+        if (x2 < min2) {
+            min2 = x2;
+        }
+        if (x2 > max2) {
+            max2 = x2;
+        }
+    }
+    var mean2 = sum2 / n2;
+    var variance2 = sumSquared2 / n2 - mean2*mean2;
+    var stdDev2 = Math.sqrt(variance2);
+    return {min2: min2, max2: max2, mean2: mean2, stdDev2: stdDev2};
+    }
     </script>
 </body>
 </html>
