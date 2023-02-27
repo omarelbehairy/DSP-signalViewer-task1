@@ -2,25 +2,22 @@
 <html>
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-    <script src='https://unpkg.com/simple-statistics@7.8.2/dist/simple-statistics.min.js'></script>
-
 </head>
 <body>
     <div id="plot"></div>
     <div>
         <input type="file" id="fileInput" onchange="OpenFile(event)">
+        <input type="text" id="labelInput" onchange="updateLabel()">
         <button id="toggle-btn" onclick="togglePlot()">Start</button>
-        <button onclick="saveAsPDF()">PDF</button>
-
     </div>
     <script>
         var plotDiv = document.getElementById('plot');
         var x = [];
         var y = [];
+        var labels = [];
         var cnt = 0;
         var intervalID;
-        var yRange = [-1,1.8];
+        var yRange = [-1, 1.8];
         var windowSize = 100;
         var windowStart = 0;
         var windowEnd = windowStart + windowSize;
@@ -33,6 +30,7 @@
                 for(var i = 0; i < lines.length; i++){
                     var cols = lines[i].split('\t');
                     y.push(parseFloat(cols[1]));
+                    labels.push("");
                 }
                 plot();
             };
@@ -40,81 +38,72 @@
         }
 
         function plot() {
-            Plotly.newPlot(plotDiv, [{x: x, y: y}], {
-            title: 'ECG Signal',
-            scrollZoom: true,
-            modeBar: {orientation: 'v'},
-            xaxis: {range: [0, windowSize], fixedrange: true},
-            yaxis: {range: yRange}
-        });
-    }
-
-    function update() {
-        x.push(cnt);
-        y.push(); // add code to get ECG here
-        cnt++;
-
-        // update xaxis range
-        windowStart = Math.max(cnt - windowSize, 0);
-        windowEnd = windowStart + windowSize;
-        var update = {
-            xaxis: {
-                range: [windowStart, windowEnd]
-            }
-        };
-
-        Plotly.update(plotDiv, {x: [x.slice(windowStart, windowEnd)], y: [y.slice(windowStart, windowEnd)]}, update);
-    }
-
-    function togglePlot() {
-        var button = document.getElementById("toggle-btn");
-        if (button.innerHTML === "Stop") {
-            clearInterval(intervalID);
-            button.innerHTML = "Play";
-        } else {
-            intervalID = setInterval(update, 50);
-            button.innerHTML = "Stop";
-        }
-    }
-    
-    function saveAsPDF() {
-    var element = document.getElementById('plot');
-    var opt = {
-        margin: 1,
-        filename: 'Plotted_Signal.pdf',
-        image: { type: 'pdf', quality: 0.95 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    var layout = {
+        title: 'Real-Time Signal',
+        scrollZoom: true,
+        modeBar: {orientation: 'v'},
+        xaxis: {range: [0, windowSize], fixedrange: true},
+        yaxis: {range: yRange},
     };
-    
-    var stats = calculateStatistics(y); 
-    var html = '<h2>Plotted Signal</h2>' + element.innerHTML; // Add title to the plot in the PDF
-    html += '<h3>Statistics</h3><ul><li>Minimum: ' + stats.min + '</li><li>Maximum: ' + stats.max + '</li><li>Mean: ' + stats.mean + '</li><li>Standard Deviation: ' + stats.stdDev + '</li></ul>'; // Add statistics to the PDF
-    html2pdf().set(opt).from(html).save();
+
+    Plotly.newPlot(plotDiv, [{x: x, y: y, text: labels}], layout);
 }
 
-function calculateStatistics(data) {
-    var n = (data.length/100);
-    var sum = 0;
-    var sumSquared = 0;
-    var min = Number.MAX_VALUE;
-    var max = Number.MIN_VALUE;
-    for (var i = 0; i <= n; i++) {
-        var x = data[i];
-        sum = sum + x;
-        sumSquared += x*x;
-        if (x < min) {
-            min = x;
+
+
+        function update() {
+    x.push(cnt);
+    y.push(); // add code to get ECG here
+    labels.push(document.getElementById("labelInput").value);
+    cnt++;
+
+    // update xaxis range
+    windowStart = Math.max(cnt - windowSize, 0);
+    windowEnd = windowStart + windowSize;
+    var update = {
+        xaxis: {
+            range: [windowStart, windowEnd]
         }
-        if (x > max) {
-            max = x;
+    };
+
+    Plotly.update(plotDiv, {x: [x.slice(windowStart, windowEnd)], y: [y.slice(windowStart, windowEnd)], text: [labels.slice(windowStart, windowEnd)]}, update);
+}
+
+
+
+        function togglePlot() {
+            var button = document.getElementById("toggle-btn");
+            if (button.innerHTML === "Stop") {
+                clearInterval(intervalID);
+                button.innerHTML = "Play";
+            } else {
+                intervalID = setInterval(update, 50);
+                button.innerHTML = "Stop";
+            }
         }
-    }
-    var mean = sum / n;
-    var variance = sumSquared / n - mean*mean;
-    var stdDev = Math.sqrt(variance);
-    return {min: min, max: max, mean: mean, stdDev: stdDev};
-    }
+
+        function updateLabel() {
+    var label = document.getElementById('labelInput').value;
+    var update = {
+        annotations: [
+            {
+                text: label,
+                xref: 'paper',
+                yref: 'paper',
+                x: 0.1,
+                y: 1.0,
+                showarrow: false,
+                font: {
+                    size: 16
+                }
+            }
+        ]
+    };
+    Plotly.update(plotDiv, {}, update);
+}
+
+
+
     </script>
 </body>
 </html>
