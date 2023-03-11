@@ -14,6 +14,7 @@
     </head>
 
     <body>
+        <h1>Multi channel signal viewer</h1>
         <div id="signalchannels" class="grid-container">
 
             <div id="plot" class="grid-item"></div>
@@ -26,6 +27,7 @@
                 <input type="file" id="fileInput" onchange="OpenFile(event)">
                 <button id="toggle-btn" onclick="togglePlot()">Start</button>
                 <input type="text" id="labelInput" onchange="updateLabel()">
+                <button onclick="saveaspdf()">PDF</button>
                 <button id="restart-btn" onclick="rewindPlot()">Rewind</button>
                 <button onclick="changeColor()">Color</button>
                 <button id="hide" onclick="HideDiv()">hide</button>
@@ -36,13 +38,14 @@
                 <label for="xRangeInput">X - axis</label>
                 <input type="range" id="xRangeInput" min="10" max="500" step="1" value="10" onchange="updateXRange()">
                 <label for="yRangeInput">Y - axis</label>
-                <input type="range" id="yRangeInput" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRange()">        
+                <input type="range" id="yRangeInput" min="0" max="100" step="1" value="-1" onchange="updateYRange()">        
             </div> 
-
+            
             <div id="secondDiv">
                 <input type="file" id="fileInput2" onchange="OpenFile2(event)">
                 <button id="toggle-btn2" onclick="togglePlot2()">Start</button>
                 <input type="text" id="labelInput2" onchange="updateLabel2()">
+                <button onclick="saveAsPDF2()">PDF</button>
                 <button id="restart-btn2" onclick="rewindPlot2()">Rewind</button>
                 <button onclick="changeColor2()">Color</button>
                 <button onclick="HideDiv2()">hide</button>
@@ -57,11 +60,11 @@
             </div>
         </div>
         <div id="linkedDiv" style="display:none ;">
-            <input type="file" id="fileInputTotal1" onchange="OpenFile(event)">
-            <input type="file" id="fileInputTotal2" onchange="OpenFile2(event)">
+            <!--<input type="file" id="fileInputTotal1" onchange="OpenFile(event)">
+            <input type="file" id="fileInputTotal2" onchange="OpenFile2(event)">-->
             <button id="toggle-btn-total" onclick="togglePlotTotal()">Start</button>
-            <input type="text" id="labelInputTotal" onchange="updateLabelTotal()">
-            <button onclick="saveAsPDF()">PDF</button>
+            <input type="text" id="labelInputTotal" onkeypress="updatelabelTotal(event)" >
+            <button onclick="saveAsPDFtotal()">PDF</button>
             <button onclick="HideDivTotal()">Hide</button>
             <button id="restart-btn-total" onclick="rewindPlotTotal()">Rewind</button>
             <button onclick="changeColorTotal()">Color</button>
@@ -75,6 +78,8 @@
             <input type="range" id="yRangeInputTotal" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRangeTotal()">
         </div>
 
-        <script src="indexJS.JS"></script>
+        <script src="indexJS.JS">
+            
+        </script>
     </body>
 </html>

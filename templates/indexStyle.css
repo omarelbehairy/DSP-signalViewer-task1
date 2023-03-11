@@ -1,46 +1,46 @@
 body {
-    background-color: powderblue;
+    background-color: rgb(97, 187, 222);
+    text-align: center;
   }
-#signalchannels {
-    display: flex;
-    align-content: center;
-}
+
 #plot {
     width: auto;
     display:inline-block;
     border: 1px solid black;
     
 }
+h1 {
+color: aliceblue;
+font-size: 70px;
+}
 
 #plot2 {
     width: auto;
     display: inline-block;
-    position:absolute;
-    top:0.5em;
-    left:50%;
     border: 1px solid black;
 
 }
 .grid-container {
     display: grid;
     column-gap: 10px;
+    grid-template-columns: auto auto ;
     justify-content: space-evenly;
 }
 
 #linklink {
     position: relative;
     align-content: center;
-    top:3em;
+    top:13em;
 }
 
 #control {
     position: relative;
-    top:3em;
+    top:13em;
     border:1px solid black;
 }
 
 #linkedDiv {
     position : relative ;
-    top:3em;
+    top: 13em;
     border:1px solid black;
 }
