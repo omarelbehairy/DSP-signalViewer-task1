@@ -1,0 +1,47 @@
+body {
+    background-color: rgb(105,105,105);
+    text-align: center;
+  }
+
+#plot {
+    width: auto;
+    display:inline-block;
+    border: 1px solid black;
+    
+}
+h1 {
+color: #8b0000;
+font-size: 70px;
+}
+
+#plot2 {
+    width: auto;
+    display: inline-block;
+    border: 1px solid black;
+
+}
+.grid-container {
+    display: grid;
+    column-gap: 10px;
+    grid-template-columns: auto auto ;
+    justify-content: space-evenly;
+}
+
+#linklink {
+    position: relative;
+    align-content: center;
+    top:13em;
+    color: solid black;
+}
+
+#control {
+    position: relative;
+    top:13em;
+    border:1px solid black;
+}
+
+#linkedDiv {
+    position : relative ;
+    top: 13em;
+    border:1px solid black;
+}
