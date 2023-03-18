@@ -5,13 +5,13 @@ var labels = [];
 var cnt = 0;
 var intervalID;
 var plotColor = '#1f77b4'; // Default color
-var yRange = [-1, 1.8];
+var yRange = [-2.5, 2.5];
 var xRange = [0, 100];
 var intervalTime = 50;
 var windowSize = 100;
 var windowStart = 0;
 var windowEnd = windowStart + windowSize;
-var checkHidden = true;
+//var checkHidden = true;
 
 
 var plotDiv2 = document.getElementById('plot2');
@@ -40,12 +40,15 @@ function OpenFile(event) {
     var reader = new FileReader();
     reader.onload = function () {
         var lines = reader.result.split('\n');
-        for (var i = 0; i < lines.length; i++) {
+        for (var i = 0; i < lines.length - 1; i++) {
             var cols = lines[i].split('\t');
-            x.push(parseFloat(cols[0])); //
-            y.push(parseFloat(cols[1]));
+            if (cols[0] != NaN && cols[1] != NaN) {
+                x.push(parseFloat(cols[0])); //
+                y.push(parseFloat(cols[1]));
+            }
         }
         plot();
+
     };
     reader.readAsText(input.files[0]);
 }
@@ -53,7 +56,6 @@ function OpenFile(event) {
 
 function plot() {
     var layout = {
-        title: 'First Graph Real-Time Plotting',
         scrollZoom: true,
         showlegend: true,
         modeBar: { orientation: 'v' },
@@ -61,7 +63,7 @@ function plot() {
         yaxis: { range: yRange },
     };
 
-    Plotly.newPlot(plotDiv, [{ x: [], y: [], text: labels }], layout);
+    Plotly.newPlot(plotDiv, [{ x: [], y: [], text: labels }], layout, {displayModeBar: false});
 }
 
 function HideDiv() {
@@ -71,32 +73,6 @@ function HideDiv() {
     } else {
         x.style.display = "none";
     }
-}
-
-function HideDiv2() {
-    var x = document.getElementById("plot2");
-    if (x.style.display === "none") {
-        x.style.display = "block";
-    } else {
-        x.style.display = "none";
-    }
-}
-
-function HideTotalButtons() {
-    var first = document.getElementById("firstDiv");
-    var second = document.getElementById("secondDiv");
-    var third = document.getElementById("linkedDiv");
-    if (first.style.display === "none" && second.style.display === "none") {
-        first.style.display = "block";
-        second.style.display = "block";
-        third.style.display = "none";
-    } else {
-        first.style.display = "none";
-        second.style.display = "none";
-        third.style.display = "block";
-    }
-    
-
 }
 
 function update() {
@@ -181,36 +157,44 @@ function ZoomSliderChange(value) {
 }
 
 
-function updateYRange() {
-    const slider = document.getElementById("yRangeInput").value;
-    yRange[0] = parseFloat(slider);
+/*function updateYRange() {
+    minimumVal = Math.min(...y);
+    maximumVal = Math.max(...y);
+
+    console.log(minimumVal, maximumVal);
+    yRange[1] = parseInt(document.getElementById("yRangeInput").value);
+    var slider = (yRange[1] / 100);
+
+    var first = minimumVal + (slider * maximumVal);
+    var last  = first + 0.1 * (maximumVal - minimumVal) ;
     
-    Plotly.update(plotDiv, { yaxis: { range: yRange } });
-}
+    console.log(first , last);
+    var update = {
+        yaxis: {
+            range: [first, last],
+        }
+    };
+
+    Plotly.update(plotDiv, { x: [x], y: [y] }, update);
+}*/
 
 function updateXRange() {
     xRange[1] = parseInt(document.getElementById("xRangeInput").value);
-    var slider = (xRange[1] / 500);
+    var slider = (xRange[1] / 100);
 
     var first = Math.max((slider * cnt) - windowSize, 0);
     var last  = Math.min((slider * cnt), cnt);
 
-    Plotly.update(plotDiv, { xaxis: { range: [x[first], x[last]] } });
-
-    // Plotly.update(plotDiv, { xaxis: { range: [Math.max(cnt - xRange[1], xRange[0]), cnt] } });
+    if (first == last && first == 0) {
+        last = windowSize;
+    }
 
     var update = {
         xaxis: {
-            range: [x[first], x[last]],
+            range: [x[parseInt(first)], x[parseInt(last)]],
         }
     };
 
-    console.log(first, last)
-    // var update = {
-    //     xaxis: {
-    //         range: [Math.max(cnt - xRange[1], xRange[0]), cnt]
-    //     }
-    // };
     Plotly.update(plotDiv, { x: [x], y: [y] }, update);
 }
 
@@ -226,7 +210,6 @@ function rewindPlot() {
     var button = document.getElementById("toggle-btn");
     button.innerHTML = "Start";
 }
-
 
 function calculateStatistics(data) {
     var n = (data.length / 100);
@@ -251,18 +234,39 @@ function calculateStatistics(data) {
     return { min: min, max: max, mean: mean, stdDev: stdDev };
 }
 
-//second graph setting*********************************************************************************************************
+function saveaspdf() {
+    var element = document.getElementById('plot');
+    var opt = {
+        margin: 1,
+        filename: 'First Graph Real-Time Plotting.pdf',
+        image: { type: 'pdf', quality: 0.95 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    var stats = calculateStatistics(y);
+    var html = '<h2>Plotted Signal</h2>' + element.innerHTML; // Add title to the plot in the PDF
+    html += '<h3>Statistics</h3><ul><li>Minimum: ' + stats.min + '</li><li>Maximum: ' + stats.max + '</li><li>Mean: ' + stats.mean + '</li><li>Standard Deviation: ' + stats.stdDev + '</li></ul>'; // Add statistics to the PDF
+    html2pdf().set(opt).from(html).save();
+}
 
 
+
+//second graph setting**************************************************************************************************************************************************************************************************************************
 
 function OpenFile2(event) {
+    cnt2=0;
     var input2 = event.target;
     var reader2 = new FileReader();
     reader2.onload = function () {
         var lines2 = reader2.result.split('\n');
-        for (var i = 0; i < lines2.length; i++) {
-            var cols2 = lines2[i].split('\t');
+        for (var i = 0; i < lines2.length; i++) 
+        {
+        var cols2 = lines2[i].split('\t');
+            if(cols2[0]!=NaN && cols2[1]!=NaN)
+            {
+            x2.push(parseFloat(cols2[0]));
             y2.push(parseFloat(cols2[1]));
+            }
         }
         plot2();
     };
@@ -271,67 +275,47 @@ function OpenFile2(event) {
 
 function plot2() {
     var layout2 = {
-        title: 'Second Graph Real-Time Plotting',
         scrollZoom: true,
         modeBar: { orientation: 'v' },
         showlegend: true,
-        //name:trace1,
-        xaxis: { range: [0, windowSize2], fixedrange: true },
+        xaxis: { range: xRange2, fixedrange: true },
         yaxis: { range: yRange2 },
     };
-    Plotly.newPlot(plotDiv2, [{ x: x2, y: y2 }], layout2);
+    Plotly.newPlot(plotDiv2, [{ x: [], y: [] }], layout2, {displayModeBar: false});
 }
 
 function update2() {
-    x2.push(cnt2);
-    y2.push(); // add code to get ECG here
+    //x2.push(cnt2);
+    //y2.push(); // add code to get ECG here
     cnt2++;
 
     // update xaxis range
     windowStart2 = Math.max(cnt2 - windowSize2, 0);
-    windowEnd2 = windowStart2 + windowSize2;
+    //windowEnd2 = windowStart2 + windowSize2;
+    windowEnd2 = cnt2;
     var update22 = {
         xaxis: {
-            range: [windowStart2, windowEnd2]
+            //range: [windowStart2,windowEnd]
+            range: [x2[windowStart2], x2[windowEnd2]]
         }
     };
-
+    if (cnt2!=x.length){
     Plotly.update(plotDiv2, { x: [x2.slice(windowStart2, windowEnd2)], y: [y2.slice(windowStart2, windowEnd2)] }, update22);
+    cnt2++;
+    }
 }
 
 function togglePlot2() {
-    /*if(linked == true) {
-        //updateLabel2();
-        var button2 = document.getElementById("toggle-btn");
-        if (button2.innerHTML === "Stop") {
-            clearInterval(intervalID);
-            button2.innerHTML = "Play";
-            console.log('happened');
-            // Reset slider
-            //var slider = document.getElementById('interval-slider2');
-            //slider2.value = 100;
-            //intervalTime2 = 100;
-        } else {
-            intervalID = setInterval(update, 50);
-            button2.innerHTML = "Stop";
-            console.log('happened 2');
-        }
-    } else {*/
     updateLabel2();
     var button2 = document.getElementById("toggle-btn2");
     if (button2.innerHTML === "Stop") {
         clearInterval(intervalID2);
         button2.innerHTML = "Play";
-        // Reset slider
-        var slider2 = document.getElementById('interval-slider2');
-        slider2.value = 100;
-        intervalTime2 = 100;
+        intervalID2 = 0;
     } else {
         intervalID2 = setInterval(update2, 50);
         button2.innerHTML = "Stop";
     }
-    //}
-
 }
 
 function updateInterval2(value) {
@@ -375,6 +359,15 @@ function updateLabel2() {
     Plotly.update(plotDiv2, {}, update2);
 }
 
+function HideDiv2() {
+    var x = document.getElementById("plot2");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+
 function changeColor2() {
     // Generate a random color
     var randomColor2 = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
@@ -385,84 +378,85 @@ function changeColor2() {
 }
 
 function ZoomSliderChange2(value) {
-    windowSize2 = Math.round(value * x2.length / 100);
+    windowSize2 = Math.round(value * cnt2 / 100);
     windowStart2 = Math.max(cnt2 - windowSize2, 0);
-    windowEnd2 = windowStart2 + windowSize2;
+    cnt2++;
+    //windowEnd2 = windowStart2 + windowSize2;
+    if(cnt2>windowSize2){
+        windowEnd2 = windowStart2 + windowSize2;
+    }else{
+        windowEnd2 = cnt2;
+    }
     var update2 = {
         xaxis: {
-            range: [windowStart2, windowEnd2]
+            range: [x[windowStart2], x[windowEnd2]]
         }
     };
     Plotly.update(plotDiv2, { x: [x2.slice(windowStart2, windowEnd2)], y: [y2.slice(windowStart2, windowEnd2)] }, update2);
 }
 
-function updateYRange2() {
-    
-    yRange2[0] = parseFloat(document.getElementById("yRangeInput2").value);
-    Plotly.update(plotDiv2, { yaxis: { range: yRange2 } });
-}
 
 function updateXRange2() {
     xRange2[1] = parseInt(document.getElementById("xRangeInput2").value);
-    const slider = (xRange2[1] / 500);
+    var slider = (xRange2[1] / 100);
     //console.log(slider);
-    var first = slider * cnt2 - 100;
-    var last = slider * cnt2;
+    var first2 = Math.max((slider * cnt2) - windowSize2, 0);
+    var last2 = Math.min((slider * cnt2), cnt2);
     //console.log(last);
-    if(first < 0) first = 0;
-    if(last > cnt2) last = cnt2;
-    //console.log(first);
-    //console.log(xRange2[1]);
-
-    Plotly.update(plotDiv2, { xaxis: { range: [first, last] } });
+    if(first2 == last2 && first2 == 0) {
+        last2 = windowSize2;
+    }
     var update = {
         xaxis: {
-            range: [first, last],
+            range: [x2[parseInt(first2)], x2[parseInt(last2)]],
         }
     };
-
-    Plotly.update(plotDiv2, { x2: [x2], y2: [y2] }, update);
-
-////////////////////////////////////////////////////////////////////////////////////////
-/*
-    Plotly.update(plotDiv2, { xaxis: { range: [Math.max(cnt2 - xRange2[1], xRange2[0]), cnt2] } });
-    var update2 = {
-        xaxis: {
-            range: [Math.max(cnt - xRange2[1], xRange2[0]), cnt2]
-        }
-    };
-    Plotly.update(plotDiv2, { x: [x2], y: [y2] }, update2);
-    
-///////////////////////////////////////////////////////////////////////////////////////
-    xRange[1] = parseInt(document.getElementById("xRangeInput").value);
-
-    const slider = (xRange[1] / 500);
-
-    var first = slider * cnt - 100;
-    var last = slider * cnt;
-    if(first < 0) first = 0;
-    if(last > cnt) last = cnt;
-
-    Plotly.update(plotDiv, { xaxis: { range: [first, last] } });
-
-    //Plotly.update(plotDiv, { xaxis: { range: [Math.max(cnt - xRange[1], xRange[0]), cnt] } });
-
-    var update = {
-        xaxis: {
-            range: [first, last],
-        }
-    };
-
-    // var update = {
-    //     xaxis: {
-    //         range: [Math.max(cnt - xRange[1], xRange[0]), cnt]
-    //     }
-    // };
-    Plotly.update(plotDiv, { x: [x], y: [y] }, update);
-*/
+    Plotly.update(plotDiv2, { x: [x2], y: [y2] }, update);
 }
 
-//link settings********************************************
+function saveAsPDF2() {
+    var element2 = document.getElementById('plot2');
+    var opt2 = {
+        margin: 1,
+        filename: 'Second Graph Real-Time Plotting.pdf',
+        image: { type: 'pdf', quality: 0.95 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    var stats2 = calculateStatistics2(y2);
+    var html2 = '<h2>Plotted Signal</h2>' + element2.innerHTML; // Add title to the plot in the PDF
+    html2 += '<h3>Statistics</h3><ul><li>Minimum: ' + stats2.min2 + '</li><li>Maximum: ' + stats2.max2 + '</li><li>Mean: ' + stats2.mean2 + '</li><li>Standard Deviation: ' + stats2.stdDev2 + '</li></ul>'; // Add statistics to the PDF
+    html2pdf().set(opt2).from(html2).save();
+}
+
+function calculateStatistics2(data2) {
+    var n2 = (data2.length / 100);
+    var sum2 = 0;
+    var sumSquared2 = 0;
+    var min2 = Number.MAX_VALUE;
+    var max2 = Number.MIN_VALUE;
+    for (var i2 = 0; i2 <= n2; i2++) {
+        var x2 = data2[i2];
+        sum2 = sum2 + x2;
+        sumSquared2 += x2 * x2;
+        if (x2 < min2) {
+            min2 = x2;
+        }
+        if (x2 > max2) {
+            max2 = x2;
+        }
+    }
+    var mean2 = sum2 / n2;
+    var variance2 = sumSquared2 / n2 - mean2 * mean2;
+    var stdDev2 = Math.sqrt(variance2);
+    return { min2: min2, max2: max2, mean2: mean2, stdDev2: stdDev2 };
+}
+
+
+
+//link settings**********************************************************************************************************************************************************************************************************************************************************************
+
 
 
 function updatelabelTotal(event) {
@@ -541,32 +535,15 @@ function rewindPlotTotal() {
 
 }
 
-function saveaspdf() {
-    var element = document.getElementById('plot');
-    var opt = {
-        margin: 1,
-        filename: 'First Graph Real-Time Plotting.pdf',
-        image: { type: 'pdf', quality: 0.95 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    var stats = calculateStatistics(y);
-    var html = '<h2>Plotted Signal</h2>' + element.innerHTML; // Add title to the plot in the PDF
-    html += '<h3>Statistics</h3><ul><li>Minimum: ' + stats.min + '</li><li>Maximum: ' + stats.max + '</li><li>Mean: ' + stats.mean + '</li><li>Standard Deviation: ' + stats.stdDev + '</li></ul>'; // Add statistics to the PDF
-    html2pdf().set(opt).from(html).save();
-}
-
 function changeColorTotal() {
-    //changeColor();
-    //changeColor2();
     // Generate a random color
     var randomColorTotal = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-
     // Update the plot color
     Plotly.restyle(plotDiv2, { line: { color: randomColorTotal } }, 0);
     Plotly.restyle(plotDiv, { line: { color: randomColorTotal } }, 0);
     plotColor2 = randomColorTotal;
-    plotColor = randomColorTotal // Save the new color for future updates
+    plotColor = randomColorTotal
+    // Save the new color for future updates
 }
 
 function ZoomSliderChangeTotal(value) {
@@ -580,58 +557,66 @@ function updateIntervalTotal(value) {
 }
 
 function updateXRangeTotal() {
-    updateXRange();
-    updateXRange2();
-}
+    xRange[1] = parseInt(document.getElementById("xRangeInputTotal").value);
+    xRange2[1] = parseInt(document.getElementById("xRangeInputTotal").value);
+    var slider = (xRange[1] / 100);
+    var slider2 = (xRange2[1] / 100);
+    console.log(slider);
+    console.log(slider2);
 
-function updateYRangeTotal() {
-    updateYRange();
-    updateYRange2();
-}
-function HideDivTotal() {
-    HideDiv();
-    HideDiv2();
-}
+    // var first = Math.max((slider * cnt) - windowSize, 0);
+    // var last = Math.min((slider * cnt), cnt);
+    // var first2 = Math.max((slider2 * cnt2) - windowSize2, 0);
+    // var last2 = Math.min((slider2 * cnt2), cnt2);
 
-function saveAsPDF2() {
-    var element2 = document.getElementById('plot2');
-    var opt2 = {
-        margin: 1,
-        filename: 'Second Graph Real-Time Plotting.pdf',
-        image: { type: 'pdf', quality: 0.95 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+
+    var first = x[parseInt(cnt * slider)];
+    var last = x[parseInt(cnt * slider + 100)];
+
+    var first2 = x[parseInt(cnt2 * slider2)];
+    var last2 = x[parseInt(cnt2 * slider2 + 100)];
+
+    // if (first == last && first == 0) {
+    //     last = windowSize;
+    // }
+
+    // if (first2 == last2 && first2 == 0) {
+    //     last2 = windowSize2;
+    // }
+
+    var update = {
+        xaxis: {
+            range: [first, last],
+        }
     };
 
-    var stats2 = calculateStatistics2(y2);
-    var html2 = '<h2>Plotted Signal</h2>' + element2.innerHTML; // Add title to the plot in the PDF
-    html2 += '<h3>Statistics</h3><ul><li>Minimum: ' + stats2.min2 + '</li><li>Maximum: ' + stats2.max2 + '</li><li>Mean: ' + stats2.mean2 + '</li><li>Standard Deviation: ' + stats2.stdDev2 + '</li></ul>'; // Add statistics to the PDF
-    html2pdf().set(opt2).from(html2).save();
+    var update2 = {
+        xaxis: {
+            range: [first2, last2],
+        }
+    };
+
+    Plotly.update(plotDiv, { x: [x], y: [y] }, update);
+    Plotly.update(plotDiv2, { x: [x2], y: [y2] }, update2);
+    // updateXRange();
+    //updateXRange2();
 }
 
-function calculateStatistics2(data2) {
-    var n2 = (data2.length / 100);
-    var sum2 = 0;
-    var sumSquared2 = 0;
-    var min2 = Number.MAX_VALUE;
-    var max2 = Number.MIN_VALUE;
-    for (var i2 = 0; i2 <= n2; i2++) {
-        var x2 = data2[i2];
-        sum2 = sum2 + x2;
-        sumSquared2 += x2 * x2;
-        if (x2 < min2) {
-            min2 = x2;
-        }
-        if (x2 > max2) {
-            max2 = x2;
-        }
+function HideTotalButtons() {
+    var first = document.getElementById("firstDiv");
+    var second = document.getElementById("secondDiv");
+    var third = document.getElementById("linkedDiv");
+    if (first.style.display === "none" && second.style.display === "none") {
+        first.style.display = "block";
+        second.style.display = "block";
+        third.style.display = "none";
+    } else {
+        first.style.display = "none";
+        second.style.display = "none";
+        third.style.display = "block";
     }
-    var mean2 = sum2 / n2;
-    var variance2 = sumSquared2 / n2 - mean2 * mean2;
-    var stdDev2 = Math.sqrt(variance2);
-    return { min2: min2, max2: max2, mean2: mean2, stdDev2: stdDev2 };
-}
 
+}
 
 function saveAsPDFtotal() {
     var elementTotal=document.getElementById('plot2');
@@ -645,7 +630,7 @@ function saveAsPDFtotal() {
     };
     var stats = calculateStatistics(y);
     var stats2 = calculateStatistics(y2);
-    var html = '<h4>Plotted Signals</h4>' + element.innerHTML + elementTotal.innerHTML; // Add title to the plot in the PDF
+    var html =  element.innerHTML + elementTotal.innerHTML; // Add title to the plot in the PDF
     html += '<h3>Statistics of the first grapph</h3><ul><li>Minimum: ' + stats.min + '</li><li>Maximum: ' + stats.max + '</li><li>Mean: ' + stats.mean + '</li><li>Standard Deviation: ' + stats.stdDev + '</li></ul>';
     html += '<h3>Statistics of the second graph</h3><ul><li>Minimum: ' + stats2.min + '</li><li>Maximum: ' + stats2.max + '</li><li>Mean: ' + stats2.mean + '</li><li>Standard Deviation: ' + stats2.stdDev + '</li></ul>';// Add statistics to the PDF
     html2pdf().set(opt).from(html).save();
