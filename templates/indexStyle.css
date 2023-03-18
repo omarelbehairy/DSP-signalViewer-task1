@@ -1,5 +1,5 @@
 body {
-    background-color: rgb(23, 59, 74);
+    background-color: rgb(247, 211, 211);
     text-align: center;
   }
 
@@ -20,6 +20,11 @@ font-size: 70px;
     border: 1px solid black;
 
 }
+
+.alllabel {
+color:rgb(0, 0, 0);
+}
+
 .grid-container {
     display: grid;
     column-gap: 10px;

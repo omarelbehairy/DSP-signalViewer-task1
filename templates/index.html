@@ -24,39 +24,39 @@
         <button id="linklink" onclick="HideTotalButtons()">LINKGRAPHS</button>
         <div id="control">
             <div id="firstDiv">
-                <input type="file" id="fileInput" onchange="OpenFile(event)">
+                <input type="file" id="fileInput" class="alllabel" onchange="OpenFile(event)">
                 <button id="toggle-btn" onclick="togglePlot()">Start</button>
                 <input type="text" id="labelInput" onchange="updateLabel()">
                 <button onclick="saveaspdf()">PDF</button>
                 <button id="restart-btn" onclick="rewindPlot()">Rewind</button>
                 <button onclick="changeColor()">Color</button>
                 <button id="hide" onclick="HideDiv()">hide</button>
-                <label for="slider">Zoom in/out:</label>
+                <label for="slider" class="alllabel">Zoom in/out:</label>
                 <input id="slider" type="range" min="10" max="90" value="100" onchange="ZoomSliderChange(this.value)">
-                <label for="interval-slider">Interval:</label>
-                <input type="range" id="interval-slider" min="10" max="100" step="10" value="50" oninput="updateInterval(this.value)">
-                <label for="xRangeInput">X - axis</label>
-                <input type="range" id="xRangeInput" min="10" max="500" step="1" value="10" onchange="updateXRange()">
-                <label for="yRangeInput">Y - axis</label>
-                <input type="range" id="yRangeInput" min="0" max="100" step="1" value="-1" onchange="updateYRange()">        
+                <label for="interval-slider" class="alllabel">Interval:</label>
+                <input type="range" id="interval-slider" min="1" max="100" step="10" value="50" oninput="updateInterval(this.value)">
+                <label for="xRangeInput" class="alllabel">X - axis</label>
+                <input type="range" id="xRangeInput" min="0" max="100" step="1" value="10" onchange="updateXRange()">
+                <!--<label for="yRangeInput" class="alllabel">Y - axis</label>
+                <input type="range" id="yRangeInput" min="0" max="100" step="1" value="-1" onchange="updateYRange()">-->        
             </div> 
             
             <div id="secondDiv">
-                <input type="file" id="fileInput2" onchange="OpenFile2(event)">
+                <input type="file" id="fileInput2" onchange="OpenFile2(event)" class="alllabel">
                 <button id="toggle-btn2" onclick="togglePlot2()">Start</button>
                 <input type="text" id="labelInput2" onchange="updateLabel2()">
                 <button onclick="saveAsPDF2()">PDF</button>
                 <button id="restart-btn2" onclick="rewindPlot2()">Rewind</button>
                 <button onclick="changeColor2()">Color</button>
                 <button onclick="HideDiv2()">hide</button>
-                <label for="slider2">Zoom in/out:</label>
+                <label for="slider2" class="alllabel">Zoom in/out:</label>
                 <input id="slider2" type="range" min="10" max="90" value="100" onchange="ZoomSliderChange2(this.value)">
-                <label for="interval-slider2">Interval:</label>
-                <input type="range" id="interval-slider2" min="10" max="100" step="10" value="50" oninput="updateInterval2(this.value)">
-                <label for="xRangeInput2">X - axis</label>
-                <input type="range" id="xRangeInput2" min="10" max="500" step="1" value="10" onchange="updateXRange2()">
-                <label for="yRangeInput2">Y - axis</label>
-                <input type="range" id="yRangeInput2" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRange2()">
+                <label for="interval-slider2" class="alllabel">Interval:</label>
+                <input type="range" id="interval-slider2" min="1" max="100" step="10" value="50" oninput="updateInterval2(this.value)">
+                <label for="xRangeInput2" class="alllabel">X - axis</label>
+                <input type="range" id="xRangeInput2" min="0" max="100" step="1" value="10" onchange="updateXRange2()">
+                <!--<label for="yRangeInput2" class="alllabel">Y - axis</label>
+                <input type="range" id="yRangeInput2" min="0" max="100" step="0.01" value="-1" onchange="updateYRange2()">-->
             </div>
         </div>
         <div id="linkedDiv" style="display:none ;">
@@ -68,14 +68,14 @@
             <button onclick="HideDivTotal()">Hide</button>
             <button id="restart-btn-total" onclick="rewindPlotTotal()">Rewind</button>
             <button onclick="changeColorTotal()">Color</button>
-            <label for="slider_total">Zoom in/out:</label>
+            <label for="slider_total" class="alllabel">Zoom in/out:</label>
             <input id="slider_total" type="range" min="10" max="90" value="100" onchange="ZoomSliderChangeTotal(this.value)">
-            <label for="interval-slider-total">Interval:</label>
+            <label for="interval-slider-total" class="alllabel">Interval:</label>
             <input type="range" id="interval-slider-total" min="10" max="100" step="10" value="50" oninput="updateIntervalTotal(this.value)">
-            <label for="xRangeInputTotal">X - axis</label>
-            <input type="range" id="xRangeInputTotal" min="10" max="500" step="1" value="10" onchange="updateXRangeTotal()">
-            <label for="yRangeInputTotal">Y - axis</label>
-            <input type="range" id="yRangeInputTotal" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRangeTotal()">
+            <label for="xRangeInputTotal" class="alllabel">X - axis</label>
+            <input type="range" id="xRangeInputTotal" min="0" max="100" step="1" value="0" onchange="updateXRangeTotal()">
+            <!--<label for="yRangeInputTotal" class="alllabel">Y - axis</label>
+            <input type="range" id="yRangeInputTotal" min="-1" max="1.5" step="0.01" value="-1" onchange="updateYRangeTotal()">-->
         </div>
 
         <script src="indexJS.JS">
